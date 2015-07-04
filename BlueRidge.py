@@ -136,7 +136,7 @@ if __name__ == '__main__':
     listingsPage = br.requestPage(url)
     br.parse(listingsPage)
     listings = br.getListingsAvailableAfterAndLessThan('2015-07-15', 2000)
-    if not listings:
+    if listings:
         content = br.getAnchorLinksFromPids(listings)
         emailer = Emailer()
         emailer.sendEmail("Listings available after July 15th and less 2000 per BR", content)
