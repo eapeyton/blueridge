@@ -7,7 +7,7 @@ class TestBlueRidge(unittest.TestCase):
 
     def setUp(self):
         DummyResponse.count = 0
-        BlueRidge.requests.get = getStub
+        BlueRidge.requests.Session.get = getStub
         self.br = BlueRidge.BlueRidge()
         self.testHTML = self.readTestResource('test_listings.html')
         self.br.parse(self.testHTML)
@@ -88,10 +88,11 @@ class TestBlueRidge(unittest.TestCase):
                         'http://sfbay.craigslist.org/sfc/apa/456.html',
                         'http://sfbay.craigslist.org/sfc/apa/111.html'], links)
 
+    def testGetAnchorLinksFromPids(self):
+        anchorLinks = self.br.getAnchorLinksFromPids(['123', '456', '111'])
+        self.assertEqual("""<a href=\"http://sfbay.craigslist.org/sfc/apa/123.html\">http://sfbay.craigslist.org/sfc/apa/123.html</a><br /><a href=\"http://sfbay.craigslist.org/sfc/apa/456.html\">http://sfbay.craigslist.org/sfc/apa/456.html</a><br /><a href=\"http://sfbay.craigslist.org/sfc/apa/111.html\">http://sfbay.craigslist.org/sfc/apa/111.html</a><br />""", anchorLinks)
 
-        
-        
-def getStub(url, params=None, **kwargs):
+def getStub(self, url, params=None, **kwargs):
     return DummyResponse(url)
 
 class DummyResponse:

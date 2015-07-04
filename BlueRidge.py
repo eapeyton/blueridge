@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import sys
 import re
+from Emailer import Emailer
 import time
 import random
 import requests
@@ -11,6 +12,14 @@ logging.basicConfig(level=logging.DEBUG,format='%(asctime)s %(message)s', datefm
 class BlueRidge:
     def __init__(self):
         self.goSlow = False
+
+    def initSession(self):
+        self.session = requests.session()
+        headers =   {'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                    'Accept-Encoding':'gzip,deflate,sdch',
+                    'User-agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.57 Safari/537.36',
+                    'Connection':'keep-alive'}
+        self.session.headers.update(headers)
 
     def parse(self, listingsHTML):
         self.soup = BeautifulSoup(listingsHTML)
@@ -93,14 +102,22 @@ class BlueRidge:
         return "http://sfbay.craigslist.org/sfc/apa/" + pid + ".html"
 
     def requestPage(self, url):
-        headers =   {'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                    'Accept-Encoding':'gzip,deflate,sdch',
-                    'User-agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.57 Safari/537.36',
-                    'Connection':'keep-alive'}
-        return requests.get(url, headers=headers).text
+        try:
+            return self.session.get(url).text
+        except AttributeError:
+            self.initSession()
+            return self.session.get(url).text
 
     def getLinks(self, pids):
         return [self.generateLink(pid) for pid in pids]
+
+    def getAnchorLinksFromPids(self, pids):
+        links = self.getLinks(pids)
+        anchorLinks = ""
+        for link in links:
+            anchorLink = "<a href=\"%s\">%s</a><br />" % (link, link)
+            anchorLinks += anchorLink
+        return anchorLinks
 
 if __name__ == '__main__':
     br = BlueRidge()
@@ -111,9 +128,9 @@ if __name__ == '__main__':
         url = 'http://sfbay.craigslist.org/search/sfc/apa?nh=149&nh=4&nh=12&nh=10&nh=18&nh=21&bedrooms=2' 
     listingsPage = br.requestPage(url)
     br.parse(listingsPage)
-    links = br.getLinks(br.getListingsAvailableAfterAndLessThan('2015-07-15', 2000))
-    for link in links:
-        print link
+    content = br.getAnchorLinksFromPids(br.getListingsAvailableAfterAndLessThan('2015-07-15', 2000))
+    emailer = Emailer()
+    emailer.sendEmail("Listings available after July 15th and less 2000 per BR", content)
 
             
 
