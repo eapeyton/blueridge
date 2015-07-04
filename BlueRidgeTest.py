@@ -2,6 +2,7 @@ import unittest
 import os
 import re
 import BlueRidge
+from mock import MagicMock,call
 
 class TestBlueRidge(unittest.TestCase):
 
@@ -9,6 +10,9 @@ class TestBlueRidge(unittest.TestCase):
         DummyResponse.count = 0
         BlueRidge.requests.Session.get = getStub
         self.br = BlueRidge.BlueRidge()
+        self.mockDB = MagicMock()
+        self.mockDB.has.return_value = False
+        self.br.setDB(self.mockDB)
         self.testHTML = self.readTestResource('test_listings.html')
         self.br.parse(self.testHTML)
         
@@ -91,6 +95,17 @@ class TestBlueRidge(unittest.TestCase):
     def testGetAnchorLinksFromPids(self):
         anchorLinks = self.br.getAnchorLinksFromPids(['123', '456', '111'])
         self.assertEqual("""<a href=\"http://sfbay.craigslist.org/sfc/apa/123.html\">http://sfbay.craigslist.org/sfc/apa/123.html</a><br /><a href=\"http://sfbay.craigslist.org/sfc/apa/456.html\">http://sfbay.craigslist.org/sfc/apa/456.html</a><br /><a href=\"http://sfbay.craigslist.org/sfc/apa/111.html\">http://sfbay.craigslist.org/sfc/apa/111.html</a><br />""", anchorLinks)
+
+    def testGetListingsAvailableAfterCallsDB(self):
+        listings = self.br.getListingsAvailableAfter('2015-07-15')
+        calls = [call("5099100613"), call("5091461362"), call("5072685563")]
+        self.mockDB.has.assert_has_calls(calls, any_order=True)
+
+    def testInsertListingToDB(self):
+        listings = self.br.getListingsAvailableAfter('2015-07-15')
+        calls = [call("5099100613", '2015-07-15'), call("5091461362", '2015-08-01'), call("5072685563", '2015-07-15')]
+        self.mockDB.insert.assert_has_calls(calls, any_order=True)
+        
 
 def getStub(self, url, params=None, **kwargs):
     return DummyResponse(url)

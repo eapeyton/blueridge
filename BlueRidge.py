@@ -6,12 +6,17 @@ import time
 import random
 import requests
 import logging
+from ListingDB import ListingDB
 
 logging.basicConfig(level=logging.DEBUG,format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
 class BlueRidge:
     def __init__(self):
         self.goSlow = False
+        self.db = ListingDB()
+
+    def setDB(self, DB):
+        self.db = DB
 
     def initSession(self):
         self.session = requests.session()
@@ -85,11 +90,13 @@ class BlueRidge:
         listings = []
         pids = self.getListOfPids()
         for pid in pids:
-            if self.goSlow:
-                time.sleep(random.randint(1,3))
-            listingDate = self.getAvailableDate(pid)
-            if listingDate >= date and listingDate <= '2016-01-01':
-                listings.append(pid)
+            if not self.db.has(pid):
+                if self.goSlow:
+                    time.sleep(random.randint(1,3))
+                listingDate = self.getAvailableDate(pid)
+                if listingDate >= date and listingDate <= '2016-01-01':
+                    listings.append(pid)
+                self.db.insert(pid, listingDate)
         return listings
 
     def getListingsAvailableAfterAndLessThan(self, date, maxPrice):
@@ -128,9 +135,11 @@ if __name__ == '__main__':
         url = 'http://sfbay.craigslist.org/search/sfc/apa?nh=149&nh=4&nh=12&nh=10&nh=18&nh=21&bedrooms=2' 
     listingsPage = br.requestPage(url)
     br.parse(listingsPage)
-    content = br.getAnchorLinksFromPids(br.getListingsAvailableAfterAndLessThan('2015-07-15', 2000))
-    emailer = Emailer()
-    emailer.sendEmail("Listings available after July 15th and less 2000 per BR", content)
+    listings = br.getListingsAvailableAfterAndLessThan('2015-07-15', 2000)
+    if not listings:
+        content = br.getAnchorLinksFromPids(listings)
+        emailer = Emailer()
+        emailer.sendEmail("Listings available after July 15th and less 2000 per BR", content)
 
             
 
