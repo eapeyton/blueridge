@@ -4,6 +4,7 @@ import re
 from Emailer import Emailer
 import time
 import random
+import datetime
 import requests
 import logging
 from ListingDB import ListingDB
@@ -132,7 +133,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         url = sys.argv[1]
     else:
-        url = 'http://sfbay.craigslist.org/search/sfc/apa?nh=149&nh=4&nh=12&nh=10&nh=18&nh=21&bedrooms=2' 
+        url = 'http://sfbay.craigslist.org/search/sfc/apa?nh=149&nh=4&nh=12&nh=10&nh=18&nh=21&nh=27&nh=1&bedrooms=2'
     listingsPage = br.requestPage(url)
     br.parse(listingsPage)
     listings = br.getListingsAvailableAfterAndLessThan('2015-07-15', 2000)
@@ -140,6 +141,9 @@ if __name__ == '__main__':
         content = br.getAnchorLinksFromPids(listings)
         emailer = Emailer()
         emailer.sendEmail("Listings available after July 15th and less 2000 per BR", content)
+    else:
+        emailer = Emailer()
+        emailer.sendEmail("Blue Ridge Heartbeat", str(datetime.datetime.now()))
 
             
 

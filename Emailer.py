@@ -1,15 +1,18 @@
 from subprocess import Popen, PIPE, STDOUT
 from email.mime.text import MIMEText
 import smtplib
+import os
+import sys
 
 class Emailer:
 
     def initSMTP(self):
+        currentDir = os.path.dirname(os.path.realpath(sys.argv[0]))
         SMTP_SERVER = "smtp.gmail.com"
         SMTP_PORT = 587
         self.SMTP = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
         self.SMTP.starttls()
-        self.SMTP.login("eric.peeton@gmail.com", self.getPasswordFromFile("gmail_passwd.txt"))
+        self.SMTP.login("eric.peeton@gmail.com", self.getPasswordFromFile(currentDir + os.sep + "gmail_passwd.txt"))
 
     def getPasswordFromFile(self, filename):
         process = Popen(['cat',filename], stdout=PIPE, stderr=PIPE)
