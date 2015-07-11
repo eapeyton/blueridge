@@ -104,6 +104,7 @@ class BlueRidge:
         return listings
 
     def getListingsAvailableAfterAndLessThan(self, date, maxPrice):
+        #TODO: Fix because both methods are now inserting into the database
         pids = self.getListOfPids()
         listingsSet = set(self.getListingsLessThanPerBR(maxPrice)) & set(self.getListingsAvailableAfter(date))
         listings = [listing for listing in pids if listing in listingsSet]
