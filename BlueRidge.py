@@ -136,11 +136,13 @@ if __name__ == '__main__':
         url = 'http://sfbay.craigslist.org/search/sfc/apa?nh=149&nh=4&nh=12&nh=10&nh=18&nh=21&nh=27&nh=1&bedrooms=2'
     listingsPage = br.requestPage(url)
     br.parse(listingsPage)
-    listings = br.getListingsAvailableAfterAndLessThan('2015-07-15', 2000)
+    listings = br.getListingsLessThanPerBR(2000)
+    #listings = br.getListingsAvailableAfterAndLessThan('2015-07-15', 2000)
     if listings:
         content = br.getAnchorLinksFromPids(listings)
         emailer = Emailer()
-        emailer.sendEmail("Listings available after July 15th and less 2000 per BR", content)
+        emailer.sendEmail("Listings less 2000 per BR", content)
+        #emailer.sendEmail("Listings available after July 15th and less 2000 per BR", content)
     else:
         emailer = Emailer()
         emailer.sendEmail("Blue Ridge Heartbeat", str(datetime.datetime.now()))
