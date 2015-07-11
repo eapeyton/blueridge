@@ -75,7 +75,10 @@ class BlueRidge:
         pids = []
         for index in indices:
             row = self.rows[index]
-            pids.append(row['data-pid'])
+            pid = row['data-pid']
+            if not self.db.has(pid):
+                pids.append(pid)
+                self.db.insert(pid, None)
         return pids
 
     def getAvailableDate(self, pid):
