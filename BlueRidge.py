@@ -76,9 +76,9 @@ class BlueRidge:
         for index in indices:
             row = self.rows[index]
             pid = row['data-pid']
-            if not self.db.has(pid):
-                pids.append(pid)
-                self.db.insert(pid, None)
+            #if not self.db.has(pid):
+            pids.append(pid)
+            #    self.db.insert(pid, None)
         return pids
 
     def getAvailableDate(self, pid):
@@ -137,19 +137,22 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         url = sys.argv[1]
     else:
-        url = 'http://sfbay.craigslist.org/search/sfc/apa?nh=149&nh=4&nh=12&nh=10&nh=18&nh=21&nh=27&nh=1&bedrooms=2'
+        url = 'http://sfbay.craigslist.org/search/sfc/apa?s=200&nh=149&nh=4&nh=12&nh=10&nh=18&nh=21&nh=27&nh=1&bedrooms=2'
     listingsPage = br.requestPage(url)
     br.parse(listingsPage)
     listings = br.getListingsLessThanPerBR(2000)
     #listings = br.getListingsAvailableAfterAndLessThan('2015-07-15', 2000)
     if listings:
         content = br.getAnchorLinksFromPids(listings)
-        emailer = Emailer()
-        emailer.sendEmail("Listings less 2000 per BR", content)
+        with open('listings3.html', 'w') as htmlFile:
+            htmlFile.write(content)
+        #emailer = Emailer()
+        #emailer.sendEmail("Listings less 2000 per BR", content)
         #emailer.sendEmail("Listings available after July 15th and less 2000 per BR", content)
     else:
-        emailer = Emailer()
-        emailer.sendEmail("Blue Ridge Heartbeat", str(datetime.datetime.now()))
+        pass
+        #emailer = Emailer()
+        #emailer.sendEmail("Blue Ridge Heartbeat", str(datetime.datetime.now()))
 
             
 
