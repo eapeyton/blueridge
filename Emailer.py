@@ -23,7 +23,7 @@ class Emailer:
         self.SMTP = SMTP
 
     def sendEmail(self, subject, content):
-        to = ["ea.peyton@gmail.com"]
+        to = ["ea.peyton@gmail.com", "neelsharma35@gmail.com", "david.hendon3@gmail.com"]
         from_ = "eric.peeton@gmail.com"
         delimiter = ", "
 
